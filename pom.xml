@@ -25,11 +25,24 @@
             <version>6.0.0</version>
             <scope>provided</scope>
         </dependency>
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.17.2</version>
+</dependency>
     </dependencies>
 
     <build>
         <finalName>football-fan-hub</finalName>
         <plugins>
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.13.0</version>
+    <configuration>
+        <release>21</release>
+    </configuration>
+</plugin>
             <plugin>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.4.0</version>
