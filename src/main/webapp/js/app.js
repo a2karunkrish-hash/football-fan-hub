@@ -5,7 +5,7 @@ const errorMessage = document.getElementById("error-message");
 const filterButtons = document.querySelectorAll(".filter-button");
 
 let matches = [];
-let selectedFilter = "all";
+let selectedFilter = "today";
 
 function classifyStatus(status) {
     if (["IN_PLAY", "PAUSED", "LIVE"].includes(status)) {
@@ -136,7 +136,24 @@ function createDetails(match) {
         </div>
     `;
 }
+function teamName(team) {
+    return team?.shortName || team?.name || "To be decided";
+}
 
+function teamCrest(team) {
+    if (!team?.crest) {
+        return `
+            <span class="flag placeholder-flag"
+                  aria-label="Team to be decided">?</span>
+        `;
+    }
+
+    return `
+        <img class="flag"
+             src="${team.crest}"
+             alt="${teamName(team)}">
+    `;
+}
 function createFixture(match) {
     const status = classifyStatus(match.status);
 
@@ -157,19 +174,15 @@ function createFixture(match) {
 
                 <span class="teams">
                     <span class="team">
-                        <img class="flag"
-                             src="${match.homeTeam.crest}"
-                             alt="${match.homeTeam.name}">
-                        <span>${match.homeTeam.shortName}</span>
+                        ${teamCrest(match.homeTeam)}
+<span>${teamName(match.homeTeam)}</span>
                     </span>
 
                     ${displayScore(match)}
 
                     <span class="team">
-                        <span>${match.awayTeam.shortName}</span>
-                        <img class="flag"
-                             src="${match.awayTeam.crest}"
-                             alt="${match.awayTeam.name}">
+                       <span>${teamName(match.awayTeam)}</span>
+${teamCrest(match.awayTeam)}
                     </span>
                 </span>
 
@@ -184,12 +197,40 @@ function createFixture(match) {
         </article>
     `;
 }
+function isTodayInIndia(utcDate) {
+    const matchDate = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).format(new Date(utcDate));
 
+    const today = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).format(new Date());
+
+    return matchDate === today;
+}
 function renderMatches() {
     const visibleMatches = matches.filter(match => {
-        return selectedFilter === "all" ||
-            classifyStatus(match.status) === selectedFilter;
-    });
+    if (selectedFilter === "today") {
+        return isTodayInIndia(match.utcDate);
+    }
+
+    return selectedFilter === "all" ||
+        classifyStatus(match.status) === selectedFilter;
+});
+if (visibleMatches.length === 0) {
+    fixtureList.innerHTML = `
+        <div class="details-box">
+            No matches are scheduled for this selection.
+        </div>
+    `;
+    return;
+}
 
     fixtureList.innerHTML = visibleMatches
         .map(createFixture)
@@ -210,6 +251,10 @@ filterButtons.forEach(button => {
         renderMatches();
     });
 });
+
+const standingsButton = document.getElementById("standingsBtn");
+
+standingsButton.addEventListener("click", loadStandings);
 
 async function loadMatches() {
     try {
@@ -236,5 +281,42 @@ async function loadMatches() {
             "Fixtures could not be loaded. Please try again shortly.";
     }
 }
+async function loadStandings() {
 
+    const standingsSection = document.getElementById("standings-section");
+    const fixtureList = document.getElementById("fixture-list");
+    const standingsContainer = document.getElementById("standings-container");
+
+    fixtureList.hidden = true;
+    standingsSection.hidden = false;
+
+    standingsContainer.innerHTML = "Loading standings...";
+
+    try {
+
+        const response = await fetch(
+            `${window.footballFanHub.contextPath}/api/standings`
+        );
+
+        if (!response.ok) {
+            throw new Error("Unable to load standings");
+        }
+
+        const data = await response.json();
+
+        console.log(data);
+
+        standingsContainer.innerHTML =
+            "<pre>" +
+            JSON.stringify(data, null, 2) +
+            "</pre>";
+
+    } catch (error) {
+
+        standingsContainer.innerHTML =
+            "Unable to load standings.";
+
+    }
+
+}
 loadMatches();

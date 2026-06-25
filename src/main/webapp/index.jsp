@@ -24,8 +24,11 @@
 <main class="container">
 
     <nav class="filters" aria-label="Fixture filters">
-        <button class="filter-button active"
-                data-filter="all">All</button>
+       <button class="filter-button active"
+        data-filter="today">Today</button>
+
+<button class="filter-button"
+        data-filter="all">All</button>
 
         <button class="filter-button"
                 data-filter="live">Live</button>
@@ -35,6 +38,10 @@
 
         <button class="filter-button"
                 data-filter="finished">Results</button>
+<button class="filter-button"
+        id="standingsBtn">
+    Standings
+</button>
     </nav>
 
     <h2 class="section-title">2026 World Cup matches</h2>
@@ -49,7 +56,15 @@
     </div>
 
     <section id="fixture-list"></section>
+<section id="standings-section" hidden>
 
+    <h2 class="section-title">Group Standings</h2>
+
+    <div id="standings-container" class="details-box">
+        Loading standings...
+    </div>
+
+</section>
 </main>
 
 <script>

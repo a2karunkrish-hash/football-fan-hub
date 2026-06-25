@@ -158,6 +158,17 @@ header {
     object-fit: contain;
 }
 
+.placeholder-flag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed var(--muted);
+    border-radius: 50%;
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: bold;
+}
+
 .score {
     min-width: 66px;
     font-size: 1.45rem;
