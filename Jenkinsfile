@@ -7,6 +7,13 @@ pipeline {
     }
 
     stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Build') {
             steps {
                 sh 'mvn clean package'
@@ -16,7 +23,18 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
+                    rm -rf /var/lib/tomcat10/webapps/football-fan-hub
                     cp target/football-fan-hub.war /var/lib/tomcat10/webapps/
+                    sudo systemctl restart tomcat10
+                '''
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh '''
+                    sleep 10
+                    curl -f http://localhost:8080/football-fan-hub/
                 '''
             }
         }
@@ -24,11 +42,10 @@ pipeline {
 
     post {
         success {
-            echo 'Football Fan Hub was built and deployed successfully.'
+            echo '✅ Football Fan Hub deployed successfully.'
         }
-
         failure {
-            echo 'Pipeline failed. Check the console output for the error.'
+            echo '❌ Deployment failed.'
         }
     }
 }
