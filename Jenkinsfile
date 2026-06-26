@@ -23,8 +23,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    rm -rf /var/lib/tomcat10/webapps/football-fan-hub
-                    cp target/football-fan-hub.war /var/lib/tomcat10/webapps/
+                   sudo rm -rf /var/lib/tomcat10/webapps/football-fan-hub
+                   sudo cp target/football-fan-hub.war /var/lib/tomcat10/webapps/
                     sudo systemctl restart tomcat10
                 '''
             }
